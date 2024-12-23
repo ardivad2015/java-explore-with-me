@@ -25,7 +25,7 @@ public class StatisticsController {
     }
 
     @GetMapping("/stats")
-    public List<ViewStatsDto> viewStats(@RequestParam("start")
+    public List<ViewStatsDto> getStats(@RequestParam("start")
                                           @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
                                        @RequestParam("end")
                                           @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
