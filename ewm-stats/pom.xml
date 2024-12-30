@@ -8,11 +8,13 @@
         <artifactId>explore-with-me</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
-    <artifactId>statistics</artifactId>
+    <artifactId>ewm-stats</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <modules>
-        <module>client</module>
+        <module>stats-client</module>
         <module>dto</module>
-        <module>server</module>
+        <module>stats-server</module>
+        <module>stats-starter</module>
     </modules>
 </project>
