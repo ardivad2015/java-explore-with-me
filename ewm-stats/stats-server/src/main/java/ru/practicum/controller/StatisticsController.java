@@ -19,7 +19,6 @@ import java.util.List;
 public class StatisticsController {
 
     private final StatsService statsService;
-    public static final String TIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
 
     @PostMapping("/hit")
     public void addStats(@Valid @RequestBody StatsHitDto statsHitDto) {
@@ -27,10 +26,8 @@ public class StatisticsController {
     }
 
     @GetMapping("/stats")
-    public List<ViewStatsDto> getStats(@RequestParam("start")
-                                       @DateTimeFormat(pattern = TIME_PATTERN) LocalDateTime start,
-                                       @RequestParam("end")
-                                       @DateTimeFormat(pattern = TIME_PATTERN) LocalDateTime end,
+    public List<ViewStatsDto> getStats(@RequestParam("start") LocalDateTime start,
+                                       @RequestParam("end") LocalDateTime end,
                                        @RequestParam(value = "uris", required = false) List<String> uris,
                                        @RequestParam(value = "unique", defaultValue = "false") boolean unique) {
         return statsService.getStats(start, end, uris, unique);
