@@ -1,4 +1,4 @@
-package ru.practicum.service;
+package ru.practicum.service.category;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -17,13 +17,14 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
 
     @Override
+    @Transactional
     public CategoryDto addNew(CategoryDto categoryDto) {
         if (categoryRepository.existsByName(categoryDto.getName())) {
             throw new ConflictUniqueConstraintException(String.format("Категория с именем %s уже существует", categoryDto.getName()));
@@ -33,6 +34,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Transactional
     public CategoryDto update(CategoryDto categoryDto) {
         final Category category = findById(categoryDto.getId());
         final String updatedName = categoryDto.getName();
@@ -48,6 +50,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Transactional
     public void delete(Integer categoryId) {
         categoryRepository.deleteById(categoryId);
     }
