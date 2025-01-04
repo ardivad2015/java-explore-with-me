@@ -11,7 +11,7 @@ import ru.practicum.dto.category.CategoryMapper;
 import ru.practicum.exception.ConflictUniqueConstraintException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.model.Category;
-import ru.practicum.repository.CategoryRepository;
+import ru.practicum.repository.category.CategoryRepository;
 
 import java.util.List;
 

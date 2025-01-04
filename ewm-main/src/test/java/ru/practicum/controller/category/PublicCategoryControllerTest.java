@@ -23,13 +23,10 @@ class PublicCategoryControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-
     @Autowired
     private ObjectMapper objectMapper;
-
     @MockBean
     private CategoryService categoryService;
-
     @Captor
     ArgumentCaptor<Integer> intArgumentCaptor;
 

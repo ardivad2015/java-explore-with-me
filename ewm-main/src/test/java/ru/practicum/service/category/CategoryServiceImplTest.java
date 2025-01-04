@@ -1,4 +1,4 @@
-package ru.practicum.service;
+package ru.practicum.service.category;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -8,8 +8,7 @@ import ru.practicum.dto.category.CategoryDto;
 import ru.practicum.dto.category.CategoryMapper;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.model.Category;
-import ru.practicum.repository.CategoryRepository;
-import ru.practicum.service.category.CategoryServiceImpl;
+import ru.practicum.repository.category.CategoryRepository;
 
 import java.util.Optional;
 

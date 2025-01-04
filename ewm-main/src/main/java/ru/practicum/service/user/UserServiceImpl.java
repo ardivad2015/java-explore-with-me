@@ -12,11 +12,9 @@ import ru.practicum.dto.user.UserMapper;
 import ru.practicum.exception.ConflictUniqueConstraintException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.model.User;
-import ru.practicum.repository.UserRepository;
+import ru.practicum.repository.user.UserRepository;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
