@@ -30,7 +30,7 @@ class CategoryServiceImplTest {
 
     @Test
     void update_whenCategoryExistsAndNameUnique_thenUpdatedFields() {
-        final Integer id = 1;
+        final Long id = 1L;
         final String name = "Cat. 1";
         final Category category = new Category();
         final CategoryDto categoryDto = new CategoryDto();
@@ -58,7 +58,7 @@ class CategoryServiceImplTest {
 
     @Test
     void update_whenCategoryNotFound_thenNotFoundExceptionThrown() {
-        final Integer id = 1;
+        final Long id = 1L;
         final String name = "Cat. 1";
         final CategoryDto categoryDto = new CategoryDto();
 

@@ -10,10 +10,10 @@ public interface CategoryService {
 
     public CategoryDto update(CategoryDto categoryDto);
 
-    public void delete(Integer categoryId);
+    public void delete(Long categoryId);
 
     public List<CategoryDto> getAll(Integer from, Integer size);
 
-    public CategoryDto getById(Integer categoryId);
+    public CategoryDto getById(Long categoryId);
 
 }

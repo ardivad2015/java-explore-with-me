@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.dto.user.UserDto;
 import ru.practicum.dto.user.UserMapper;
-import ru.practicum.exception.ConflictUniqueConstraintException;
+import ru.practicum.exception.ConflictPropertyConstraintException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.model.User;
 import ru.practicum.repository.user.UserRepository;
@@ -25,22 +25,10 @@ class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
 
     @Override
-    public UserDto getById(Long id) {
-        return userMapper.toUserDto(findById(id));
-    }
-
-    @Override
-    public void existsById(Long id) {
-        if (!userRepository.existsById(id)) {
-            throw new NotFoundException(String.format("Пользователь с id = %d не найден", id));
-        }
-    }
-
-    @Override
     @Transactional
     public UserDto addNew(UserDto userDto) {
         if (userRepository.existsByEmail(userDto.getEmail())) {
-            throw new ConflictUniqueConstraintException(String.format("Email %s уже зарегистрирован ",
+            throw new ConflictPropertyConstraintException(String.format("Email %s уже зарегистрирован ",
                     userDto.getEmail()));
         }
         final User user = userMapper.toUser(userDto);
@@ -67,9 +55,4 @@ class UserServiceImpl implements UserService {
                 .map(userMapper::toUserDto)
                 .toList();
     }
-
-    private User findById(Long userId) {
-       return userRepository.findById(userId).orElseThrow(() ->
-               new NotFoundException(String.format("Пользователь с id = %d не найден", userId)));
-   }
 }

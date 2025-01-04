@@ -24,7 +24,7 @@ public class AdminCategoryController {
     }
 
     @PatchMapping("/{category_id}")
-    public CategoryDto updateCategory(@Positive @PathVariable("category_id") Integer categoryId,
+    public CategoryDto updateCategory(@Positive @PathVariable("category_id") Long categoryId,
                                       @Valid @RequestBody CategoryDto categoryDto) {
         categoryDto.setId(categoryId);
         return categoryService.update(categoryDto);
@@ -32,7 +32,7 @@ public class AdminCategoryController {
 
     @DeleteMapping("/{category_id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@Positive @PathVariable("category_id") Integer categoryId) {
+    public void delete(@Positive @PathVariable("category_id") Long categoryId) {
         categoryService.delete(categoryId);
     }
 }

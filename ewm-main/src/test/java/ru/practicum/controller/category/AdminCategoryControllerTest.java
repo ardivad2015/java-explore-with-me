@@ -38,7 +38,7 @@ class AdminCategoryControllerTest {
     @Test
     void updateCategory() {
         final CategoryDto categoryDto = new CategoryDto();
-        final Integer categoryId = 1;
+        final Long categoryId = 1L;
         categoryDto.setName("cat. 1");
         categoryDto.setId(categoryId);
 

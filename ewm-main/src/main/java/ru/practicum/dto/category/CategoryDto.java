@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 public class CategoryDto {
 
-    private int id;
+    private Long id;
     @NotBlank
     @Size(max = 50)
     private String name;

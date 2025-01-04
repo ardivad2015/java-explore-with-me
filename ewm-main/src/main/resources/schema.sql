@@ -10,8 +10,8 @@ CREATE TABLE IF NOT EXISTS users (
 	user_name VARCHAR(250) NOT NULL,
 	email VARCHAR(254) NOT NULL,
 	CONSTRAINT uq_user_email UNIQUE (email),
-	CONSTRAINT min_length_email CHECK (length(email) > 5),
-	CONSTRAINT min_length_name CHECK (length(email) > 1)
+	CONSTRAINT min_length_email CHECK (length(email) >= 6),
+	CONSTRAINT min_length_name CHECK (length(email) >= 2)
 );
 
 CREATE TABLE IF NOT EXISTS events
@@ -35,5 +35,6 @@ CREATE TABLE IF NOT EXISTS events
     CONSTRAINT user_fk FOREIGN KEY (initiator_id) REFERENCES users(user_id) ON DELETE RESTRICT,
     CONSTRAINT min_length_annotation CHECK (length(annotation) >= 20),
     CONSTRAINT min_length_description CHECK (length(description) >= 20),
-    CONSTRAINT event_date_check CHECK (event_date >= CURRENT_TIMESTAMP + interval '2 hour')
+    CONSTRAINT min_length_title CHECK (length(title) >= 3),
+    CONSTRAINT event_date_check CHECK (event_date >= created_on + interval '2 hour')
 );

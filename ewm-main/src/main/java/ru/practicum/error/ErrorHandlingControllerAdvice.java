@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.practicum.exception.ConflictRelationsConstraintException;
-import ru.practicum.exception.ConflictUniqueConstraintException;
+import ru.practicum.exception.ConflictPropertyConstraintException;
 import ru.practicum.exception.NotFoundException;
 
 import java.util.ArrayList;
@@ -41,7 +41,7 @@ public class ErrorHandlingControllerAdvice {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse onConflictUniqueConstraintException(ConflictUniqueConstraintException e) {
+    public ErrorResponse onConflictUniqueConstraintException(ConflictPropertyConstraintException e) {
         return new ErrorResponse(HttpStatus.CONFLICT, "Integrity constraint has been violated.",
                 e.getMessage());
     }

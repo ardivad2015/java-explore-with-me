@@ -8,10 +8,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.dto.category.CategoryDto;
 import ru.practicum.dto.category.CategoryMapper;
-import ru.practicum.exception.ConflictUniqueConstraintException;
+import ru.practicum.exception.ConflictPropertyConstraintException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.model.Category;
 import ru.practicum.repository.category.CategoryRepository;
+import ru.practicum.util.ErrorMessage;
 
 import java.util.List;
 
@@ -27,7 +28,8 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional
     public CategoryDto addNew(CategoryDto categoryDto) {
         if (categoryRepository.existsByName(categoryDto.getName())) {
-            throw new ConflictUniqueConstraintException(String.format("Категория с именем %s уже существует", categoryDto.getName()));
+            throw new ConflictPropertyConstraintException(String.format("Категория с именем %s уже существует",
+                    categoryDto.getName()));
         }
         final Category category = categoryMapper.toCategory(categoryDto);
         return categoryMapper.toCategoryDto(categoryRepository.save(category));
@@ -41,8 +43,8 @@ public class CategoryServiceImpl implements CategoryService {
         categoryRepository.findByName(updatedName).map(Category::getId)
                 .ifPresent(categoryId -> {
                     if (!categoryId.equals(categoryDto.getId())) {
-                        throw new ConflictUniqueConstraintException(String.format("Категория с именем %s уже существует",
-                                updatedName));
+                        throw new ConflictPropertyConstraintException(String.format("Категория с именем %s" +
+                                        " уже существует", updatedName));
                     }
                 });
         category.setName(updatedName);
@@ -51,7 +53,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional
-    public void delete(Integer categoryId) {
+    public void delete(Long categoryId) {
         categoryRepository.deleteById(categoryId);
     }
 
@@ -65,12 +67,12 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public CategoryDto getById(Integer categoryId) {
+    public CategoryDto getById(Long categoryId) {
         return categoryMapper.toCategoryDto(findById(categoryId));
     }
 
-    private Category findById(Integer categoryId) {
+    private Category findById(Long categoryId) {
         return categoryRepository.findById(categoryId).orElseThrow(() ->
-                new NotFoundException(String.format("Категория с id = %d не найдена", categoryId)));
+                new NotFoundException(ErrorMessage.CategoryNotFoundMessage(categoryId)));
     }
 }
