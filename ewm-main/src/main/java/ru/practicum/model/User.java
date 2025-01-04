@@ -1,6 +1,7 @@
 package ru.practicum.model;
 
 import jakarta.persistence.*;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.DynamicUpdate;
@@ -10,6 +11,7 @@ import org.hibernate.annotations.DynamicUpdate;
 @DynamicUpdate
 @Getter
 @Setter
+@EqualsAndHashCode(of = { "id" })
 public class User {
 
     @Column(name = "user_id")
