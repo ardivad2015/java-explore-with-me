@@ -48,7 +48,7 @@ public class CategoryServiceImpl implements CategoryService {
                     }
                 });
         category.setName(updatedName);
-        return categoryMapper.toCategoryDto(categoryRepository.save(category));
+        return categoryMapper.toCategoryDto(category);
     }
 
     @Override

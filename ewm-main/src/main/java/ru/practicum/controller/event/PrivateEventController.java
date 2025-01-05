@@ -24,4 +24,10 @@ public class PrivateEventController {
                                  @Valid @RequestBody NewEventDto newEventDto) {
         return eventService.addNew(userId, newEventDto);
     }
+
+    @GetMapping("{eventId}")
+    public EventFullDto getById(@Positive @PathVariable("userId") Long userId,
+                                @Positive @PathVariable("eventId") Long eventId) {
+        return eventService.getFullById(userId, eventId);
+    }
 }

@@ -8,7 +8,7 @@ public class StatisticsClientProperties {
     private String serverUrl;
 
     public String getUrl() {
-        return serverUrl;
+        return this.serverUrl;
     }
 
     public void setUrl(String serverUrl) {

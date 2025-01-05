@@ -14,7 +14,7 @@ public class StatisticsClientAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(StatisticsClient.class)
-    public StatisticsClient statsClient(StatisticsClientProperties statisticsClientProperties) {
+    public StatisticsClient statisticsClient(StatisticsClientProperties statisticsClientProperties) {
         RestTemplateBuilder builder = new RestTemplateBuilder();
         return new StatisticsClient(builder.build(), statisticsClientProperties.getUrl());
     }

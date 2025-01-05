@@ -8,4 +8,6 @@ import java.time.LocalDateTime;
 public interface EventService {
 
     EventFullDto addNew(Long userId, NewEventDto newEventDto);
+
+    EventFullDto getFullById(Long userId, Long eventId);
 }

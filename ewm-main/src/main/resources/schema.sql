@@ -35,6 +35,5 @@ CREATE TABLE IF NOT EXISTS events
     CONSTRAINT user_fk FOREIGN KEY (initiator_id) REFERENCES users(user_id) ON DELETE RESTRICT,
     CONSTRAINT min_length_annotation CHECK (length(annotation) >= 20),
     CONSTRAINT min_length_description CHECK (length(description) >= 20),
-    CONSTRAINT min_length_title CHECK (length(title) >= 3),
-    CONSTRAINT event_date_check CHECK (event_date >= created_on + interval '2 hour')
+    CONSTRAINT min_length_title CHECK (length(title) >= 3)
 );

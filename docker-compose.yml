@@ -13,8 +13,22 @@ services:
       timeout: 5s
       interval: 5s
       retries: 10
+  ewm-main-db:
+    image: postgres:16.1
+    container_name: postgres-ewm-main-db
+    ports:
+      - "6542:5432"
+    environment:
+      - POSTGRES_PASSWORD=ewmmainadmin
+      - POSTGRES_USER=ewmmainadmin
+      - POSTGRES_DB=ewmmain
+    healthcheck:
+      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
+      timeout: 5s
+      interval: 5s
+      retries: 10
   stats-server:
-    build: statistics/server
+    build: ./ewm-stats/stats-server
     image: ewm-stats
     container_name: ewm-stats
     ports:
@@ -25,3 +39,15 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://stats-db:5432/statistics
       - SPRING_DATASOURCE_USERNAME=statistics
       - SPRING_DATASOURCE_PASSWORD=statistics
+  ewm-main-server:
+    build: ./ewm-main
+    image: ewm-main
+    container_name: ewm-main
+    ports:
+      - "8080:8080"
+    depends_on:
+      - ewm-main-db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-main-db:5432/ewmmain
+      - SPRING_DATASOURCE_USERNAME=ewmmainadmin
+      - SPRING_DATASOURCE_PASSWORD=ewmmainadmin

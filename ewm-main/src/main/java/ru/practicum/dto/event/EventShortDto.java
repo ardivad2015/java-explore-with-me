@@ -18,5 +18,5 @@ public class EventShortDto {
     private boolean paid;
     private String title;
     private Integer confirmedRequests;
-    private Integer views;
+    private Long views;
 }
