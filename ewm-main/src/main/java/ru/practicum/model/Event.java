@@ -1,5 +1,6 @@
 package ru.practicum.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -24,6 +25,7 @@ public class Event {
     @JoinColumn(name = "category_id", referencedColumnName = "category_id")
     private Category category;
     @Column(name = "created_on")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdOn;
     @Column(name = "description")
     private String description;
@@ -47,4 +49,8 @@ public class Event {
     private EventState state;
     @Column(name = "title")
     private String title;
+    @Transient
+    private Integer confirmedRequests;
+    @Transient
+    private Long views;
 }

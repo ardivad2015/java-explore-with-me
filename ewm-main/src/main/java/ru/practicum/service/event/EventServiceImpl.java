@@ -9,6 +9,7 @@ import ru.practicum.StatisticsClient;
 import ru.practicum.ViewStatsDto;
 import ru.practicum.dto.event.EventFullDto;
 import ru.practicum.dto.event.EventMapper;
+import ru.practicum.dto.event.EventShortDto;
 import ru.practicum.dto.event.NewEventDto;
 import ru.practicum.exception.BadRequestException;
 import ru.practicum.exception.ConflictPropertyConstraintException;
@@ -23,6 +24,8 @@ import ru.practicum.repository.user.UserRepository;
 import ru.practicum.util.ErrorMessage;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -35,6 +38,7 @@ public class EventServiceImpl implements EventService{
     private final EventMapper eventMapper;
     private final EventRepository eventRepository;
     private final StatisticsClient statisticsClient;
+    private final String GET_EVENT_ENDPOINT = "events/";
 
     @Override
     @Transactional
@@ -77,20 +81,34 @@ public class EventServiceImpl implements EventService{
             throw new BadRequestException("Пользователь не является инициатором события");
         }
 
-        final EventFullDto eventFullDto = eventMapper.toEventFullDto(event);
-        eventFullDto.setConfirmedRequests(0);
-        List<String> uris = List.of("events/" + eventId);
-        Long viewsCount = 0L;
-        try {
-            List<ViewStatsDto> views = statisticsClient.getStats(event.getCreatedOn(), LocalDateTime.now(),
-                    uris, true).getBody();
-            if (Objects.nonNull(views) && views.size() == 1) {
-              viewsCount = views.get(0).getHits();
-            }
-        } catch (RestClientException e) {
+        final List<ViewStatsDto> views = getStatsByEventsIds(List.of(eventId), event.getCreatedOn());
+        fillAdditionalInfo(event, views);
 
+        return eventMapper.toEventFullDto(event);
+    }
+
+    @Override
+    public EventShortDto getAllByInitiator(Long userId, int from, int size) {
+        userRepository.findById(userId).orElseThrow(() ->
+                new NotFoundException(ErrorMessage.UserNotFoundMessage(userId)));
+
+    }
+
+    private List<ViewStatsDto> getStatsByEventsIds(List<Long> ids, LocalDateTime start) {
+        final List<String> uris = ids.stream().map(id -> GET_EVENT_ENDPOINT + id).toList();
+
+        try {
+            return statisticsClient.getStats(start, LocalDateTime.now(),
+                    uris, true).getBody();
+        } catch (Exception e) {
+            return Collections.emptyList();
         }
-        eventFullDto.setViews(viewsCount);
-        return eventFullDto;
+    }
+
+    private void fillAdditionalInfo(Event event, List<ViewStatsDto> views) {
+        event.setViews(views.stream()
+                .filter(viewStatsDto -> viewStatsDto.getUri().equals(GET_EVENT_ENDPOINT + event.getId()))
+                .count());
+        event.setConfirmedRequests(0);
     }
 }
