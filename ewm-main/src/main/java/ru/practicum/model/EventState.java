@@ -11,9 +11,7 @@ import java.util.stream.Collectors;
 public enum EventState {
 
     PENDING,
-
     PUBLISHED,
-
     CANCELED;
 
     public static List<EventState> fromListString(List<String> states) {

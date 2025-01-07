@@ -157,7 +157,7 @@
                         <artifactId>jacoco-maven-plugin</artifactId>
                         <configuration>
                             <excludes>
-                                <exclude>**/QHit.class</exclude>
+                                <exclude>**/QEvent.class</exclude>
                             </excludes>
                         </configuration>
                     </plugin>

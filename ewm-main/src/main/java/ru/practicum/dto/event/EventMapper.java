@@ -9,4 +9,7 @@ public interface EventMapper {
     Event toEvent(NewEventDto newEventDto);
 
     EventFullDto toEventFullDto(Event event);
+
+    EventShortDto toEventShortDto(Event event);
+
 }

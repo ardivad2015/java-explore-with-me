@@ -9,6 +9,7 @@ import ru.practicum.model.Event;
 import java.util.List;
 
 @Repository
-public interface EventRepository extends JpaRepository<Event, Long>, EventRepositoryCustom {
+public interface EventRepositoryCustom {
 
+    List<Event> findAllByInitiatorIdWithCategoryAndInitiator(Long userId, int offset, int limit);
 }
