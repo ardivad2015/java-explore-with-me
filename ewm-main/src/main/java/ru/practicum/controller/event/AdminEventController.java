@@ -7,10 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.dto.event.EventFullDto;
-import ru.practicum.dto.event.EventShortDto;
-import ru.practicum.dto.event.NewEventDto;
-import ru.practicum.dto.event.UpdateEventUserRequest;
+import ru.practicum.dto.event.*;
 import ru.practicum.model.EventState;
 import ru.practicum.service.event.EventService;
 
@@ -32,14 +29,24 @@ public class AdminEventController {
     }
 
     @GetMapping
-    public List<EventShortDto> getAll(@RequestParam(value = "users", required = false) List<Long> usersIds,
+    public List<EventFullDto> getAll(@RequestParam(value = "users", required = false) List<Long> usersIds,
                                       @RequestParam(required = false) List<EventState> states,
                                       @RequestParam(value = "categories", required = false) List<Long> categoriesIds,
                                       @RequestParam(required = false) LocalDateTime rangeStart,
                                       @RequestParam(required = false) LocalDateTime rangeEnd,
                                       @PositiveOrZero @RequestParam(defaultValue = "0") int from,
                                       @Positive @RequestParam(defaultValue = "10") int size) {
-        return eventService.getAllToAdmin(usersIds, states, categoriesIds, rangeStart, rangeEnd, from, size);
+        final EventSearchDto eventSearchDto = EventSearchDto.builder()
+                .usersIds(usersIds)
+                .states(states)
+                .categoriesIds(categoriesIds)
+                .rangeStart(rangeStart)
+                .rangeEnd(rangeEnd)
+                .from(from)
+                .size(size)
+                .build();
+
+        return eventService.getAllToAdmin(eventSearchDto);
     }
 
     @PatchMapping("/{eventId}")

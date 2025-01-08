@@ -128,9 +128,8 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<EventFullDto> getAllToAdmin(List<Long> usersIds, List<EventState> states, List<Long> categoriesIds,
-                                            LocalDateTime rangeStart, LocalDateTime rangeEnd, int from, int size) {
-        return List.of();
+    public List<EventFullDto> getAllToAdmin(EventSearchDto eventSearchDto) {
+        return eventRepository.getAllBySearchRequest(eventAdminSearchDto);
     }
 
     @Override

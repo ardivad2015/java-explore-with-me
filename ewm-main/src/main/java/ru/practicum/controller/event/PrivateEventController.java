@@ -33,7 +33,7 @@ public class PrivateEventController {
     @GetMapping("{eventId}")
     public EventFullDto getById(@Positive @PathVariable("userId") Long userId,
                                 @Positive @PathVariable("eventId") Long eventId) {
-        return eventService.getFullById(userId, eventId);
+        return eventService.getByIdToUser(userId, eventId);
     }
 
     @GetMapping
