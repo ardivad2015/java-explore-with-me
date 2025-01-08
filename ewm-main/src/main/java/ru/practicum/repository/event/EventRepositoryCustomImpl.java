@@ -1,7 +1,9 @@
 package ru.practicum.repository.event;
 
 import com.querydsl.core.types.OrderSpecifier;
+import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
+import org.springframework.data.repository.query.Param;
 import ru.practicum.model.Event;
 import ru.practicum.model.QCategory;
 import ru.practicum.model.QEvent;

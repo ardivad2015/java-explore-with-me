@@ -59,9 +59,8 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public List<CategoryDto> getAll(Integer from, Integer size) {
-        final Pageable pageable = PageRequest.of(0, size + from, Sort.by("id").ascending());
+        final Pageable pageable = PageRequest.of(from, size, Sort.by("id").ascending());
         return categoryRepository.findAll(pageable).stream()
-                .skip(from)
                 .map(categoryMapper::toCategoryDto)
                 .toList();
     }

@@ -11,36 +11,35 @@ import ru.practicum.dto.event.EventFullDto;
 import ru.practicum.dto.event.EventShortDto;
 import ru.practicum.dto.event.NewEventDto;
 import ru.practicum.dto.event.UpdateEventUserRequest;
+import ru.practicum.model.EventState;
 import ru.practicum.service.event.EventService;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
-@RequestMapping("/users/{userId}/events")
+@RequestMapping("/admin/events")
 @RequiredArgsConstructor
 @Validated
-public class PrivateEventController {
+public class AdminEventController {
 
     private final EventService eventService;
-
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public EventFullDto addNewEvent(@Positive @PathVariable("userId") Long userId,
-                                    @Valid @RequestBody NewEventDto newEventDto) {
-        return eventService.addNew(userId, newEventDto);
-    }
 
     @GetMapping("{eventId}")
     public EventFullDto getById(@Positive @PathVariable("userId") Long userId,
                                 @Positive @PathVariable("eventId") Long eventId) {
-        return eventService.getFullById(userId, eventId);
+        return eventService.getByIdToUser(userId, eventId);
     }
 
     @GetMapping
-    public List<EventShortDto> getByInitiator(@Positive @PathVariable("userId") Long userId,
-                                              @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
-                                              @Positive @RequestParam(defaultValue = "10") Integer size) {
-        return eventService.getAllByInitiator(userId, from, size);
+    public List<EventShortDto> getAll(@RequestParam(value = "users", required = false) List<Long> usersIds,
+                                      @RequestParam(required = false) List<EventState> states,
+                                      @RequestParam(value = "categories", required = false) List<Long> categoriesIds,
+                                      @RequestParam(required = false) LocalDateTime rangeStart,
+                                      @RequestParam(required = false) LocalDateTime rangeEnd,
+                                      @PositiveOrZero @RequestParam(defaultValue = "0") int from,
+                                      @Positive @RequestParam(defaultValue = "10") int size) {
+        return eventService.getAllToAdmin(usersIds, states, categoriesIds, rangeStart, rangeEnd, from, size);
     }
 
     @PatchMapping("/{eventId}")

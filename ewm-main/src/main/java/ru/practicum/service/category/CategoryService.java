@@ -15,5 +15,4 @@ public interface CategoryService {
     public List<CategoryDto> getAll(Integer from, Integer size);
 
     public CategoryDto getById(Long categoryId);
-
 }

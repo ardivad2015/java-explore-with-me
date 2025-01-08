@@ -15,10 +15,7 @@ import ru.practicum.dto.event.*;
 import ru.practicum.exception.BadRequestException;
 import ru.practicum.exception.ConflictPropertyConstraintException;
 import ru.practicum.exception.NotFoundException;
-import ru.practicum.model.Category;
-import ru.practicum.model.Event;
-import ru.practicum.model.EventState;
-import ru.practicum.model.User;
+import ru.practicum.model.*;
 import ru.practicum.repository.category.CategoryRepository;
 import ru.practicum.repository.event.EventRepository;
 import ru.practicum.repository.user.UserRepository;
@@ -50,7 +47,7 @@ public class EventServiceImpl implements EventService {
         final User initiator = userRepository.findById(userId).orElseThrow(() ->
                 new NotFoundException(ErrorMessage.UserNotFoundMessage(userId)));
         final Category category = categoryRepository.findById(newEventDto.getCategoryId()).orElseThrow(() ->
-                new NotFoundException(ErrorMessage.UserNotFoundMessage(userId)));
+                new NotFoundException(ErrorMessage.CategoryNotFoundMessage(newEventDto.getCategoryId())));
 
         final Event event = eventMapper.toEvent(newEventDto);
         event.setCategory(category);
@@ -68,7 +65,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional(readOnly = true)
-    public EventFullDto getFullById(Long userId, Long eventId) {
+    public EventFullDto getByIdToUser(Long userId, Long eventId) {
         final Event event  = getUsersEvent(userId, eventId);
         final List<ViewStatsDto> views = getStatsByEventsIds(List.of(event));
 
@@ -94,11 +91,51 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public EventFullDto updateEventByUser(Long userId, Long eventId, UpdateEventUserRequest updateEventUserRequest) {
-        final Event event  = getUsersEvent(userId, eventId);
+    public EventFullDto updateEventByUser(Long userId, Long eventId, UpdateEventUserRequest updateEventDto) {
+        final Event event = getUsersEvent(userId, eventId);
 
-        event.setAnnotation(updateEventUserRequest.getAnnotation());
+        if (event.getState().equals(EventState.PUBLISHED)) {
+            throw new ConflictPropertyConstraintException("Событие уже опубликовано.");
+        }
+
+        verifyEventDate(updateEventDto.getEventDate(), LocalDateTime.now());
+
+        final Event updatedEvent = new Event();
+
+        if (Objects.nonNull(updateEventDto.getCategoryId())) {
+            event.setCategory(categoryRepository.findById(updateEventDto.getCategoryId()).orElseThrow(() ->
+                    new NotFoundException(ErrorMessage.CategoryNotFoundMessage(updateEventDto.getCategoryId()))));
+        }
+
+        Optional.ofNullable(updateEventDto.getAnnotation()).ifPresent(event::setAnnotation);
+        Optional.ofNullable(updateEventDto.getDescription()).ifPresent(event::setDescription);
+        Optional.ofNullable(updateEventDto.getEventDate()).ifPresent(event::setEventDate);
+        Optional.ofNullable(updateEventDto.getLocation()).ifPresent(event::setLocation);
+        Optional.ofNullable(updateEventDto.getPaid()).ifPresent(event::setPaid);
+        Optional.ofNullable(updateEventDto.getParticipantLimit()).ifPresent(event::setParticipantLimit);
+        Optional.ofNullable(updateEventDto.getRequestModeration()).ifPresent(event::setRequestModeration);
+        Optional.ofNullable(updateEventDto.getTitle()).ifPresent(event::setTitle);
+        Optional.ofNullable(updateEventDto.getStateAction()).ifPresent(stateAction -> {
+            if (stateAction.equals(StateAction.SEND_TO_REVIEW)) {
+                event.setState(EventState.PENDING);
+            } else if (stateAction.equals(StateAction.CANCEL_REVIEW)) {
+                event.setState(EventState.CANCELED);
+            }
+        });
+
         return eventMapper.toEventFullDto(event);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<EventFullDto> getAllToAdmin(List<Long> usersIds, List<EventState> states, List<Long> categoriesIds,
+                                            LocalDateTime rangeStart, LocalDateTime rangeEnd, int from, int size) {
+        return List.of();
+    }
+
+    @Override
+    public float calcDistance(float lat1, float lon1, float lat2, float lon2) {
+        return eventRepository.distance(lat1, lon1, lat2, lon2);
     }
 
     @Transactional(readOnly = true)
@@ -116,7 +153,8 @@ public class EventServiceImpl implements EventService {
     }
 
     private void verifyEventDate(LocalDateTime eventDate, LocalDateTime startDate) {
-        if (eventDate.withNano(0).isBefore(startDate.withNano(0).plusHours(2))) {
+        if (Objects.nonNull(eventDate) && eventDate.withNano(0).isBefore(startDate.withNano(0)
+                .plusHours(2))) {
             throw new BadRequestException("Дата и время события не может быть раньше, " +
                     "чем через два часа от текущего момента");
         }
