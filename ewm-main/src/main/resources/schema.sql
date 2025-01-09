@@ -38,6 +38,24 @@ CREATE TABLE IF NOT EXISTS events
     CONSTRAINT min_length_title CHECK (length(title) >= 3)
 );
 
+CREATE INDEX ON events (initiator_id);
+CREATE INDEX ON events (category_id);
+CREATE INDEX ON events (event_date);
+
+create table if not exists requests
+(
+    request_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    created timestamp without time zone NOT NULL,
+    event_id BIGINT NOT NULL,
+    user_id BIGINT NOT NULL,
+    status VARCHAR(64) NOT NULL,
+    CONSTRAINT event_fk FOREIGN KEY (event_id) REFERENCES events(event_id) ON DELETE CASCADE,
+    CONSTRAINT user_fk FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+CREATE INDEX ON requests (event_id);
+CREATE INDEX ON requests (user_id);
+
 CREATE OR REPLACE FUNCTION location_distance(lat1 float, lon1 float, lat2 float, lon2 float)
     RETURNS float
 AS

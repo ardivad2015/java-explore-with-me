@@ -48,14 +48,14 @@ public class ErrorHandlingControllerAdvice {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse onConflictUniqueConstraintException(ConflictPropertyConstraintException e) {
+    public ErrorResponse onConflictPropertyConstraintException(ConflictPropertyConstraintException e) {
         return new ErrorResponse(HttpStatus.CONFLICT, "Integrity constraint has been violated.",
                 e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse onConflictRelationsConstraintExceptionException(ConflictRelationsConstraintException e) {
+    public ErrorResponse onConflictRelationsConstraintException(ConflictRelationsConstraintException e) {
         return new ErrorResponse(HttpStatus.CONFLICT, "For the requested operation the conditions are not met.",
                 e.getMessage());
     }

@@ -13,4 +13,8 @@ public final class ErrorMessage {
     public static String EventNotFoundMessage(Long eventId) {
         return String.format("Событие с id = %d не найдено", eventId);
     }
+
+    public static String EventRequestNotFoundMessage(Long requestId) {
+        return String.format("Запрос на участие с id = %d не найден", requestId);
+    }
 }

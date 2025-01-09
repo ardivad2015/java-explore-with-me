@@ -17,6 +17,8 @@ public interface EventRepository extends JpaRepository<Event, Long>, EventReposi
             value = "select location_distance(:lat1, :lon1, :lat2, :lon2)",
             nativeQuery = true
     )
-    public float distance(@Param("lat1") float lat1, @Param("lon1") float lon1,
+    float distance(@Param("lat1") float lat1, @Param("lon1") float lon1,
                           @Param("lat2") float lat2, @Param("lon2") float lon2);
+
+    Boolean existsByCategoryId(Long category_Id);
 }

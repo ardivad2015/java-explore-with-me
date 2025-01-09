@@ -9,9 +9,11 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.dto.category.CategoryDto;
 import ru.practicum.dto.category.CategoryMapper;
 import ru.practicum.exception.ConflictPropertyConstraintException;
+import ru.practicum.exception.ConflictRelationsConstraintException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.model.Category;
 import ru.practicum.repository.category.CategoryRepository;
+import ru.practicum.repository.event.EventRepository;
 import ru.practicum.util.ErrorMessage;
 
 import java.util.List;
@@ -22,6 +24,7 @@ import java.util.List;
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final EventRepository eventRepository;
     private final CategoryMapper categoryMapper;
 
     @Override
@@ -54,12 +57,15 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional
     public void delete(Long categoryId) {
+        if (eventRepository.existsByCategoryId(categoryId)) {
+            throw new ConflictRelationsConstraintException("Существуют события в этой категории");
+        }
         categoryRepository.deleteById(categoryId);
     }
 
     @Override
     public List<CategoryDto> getAll(Integer from, Integer size) {
-        final Pageable pageable = PageRequest.of(from, size, Sort.by("id").ascending());
+        final Pageable pageable = PageRequest.of(from / size, size, Sort.by("id").ascending());
         return categoryRepository.findAll(pageable).stream()
                 .map(categoryMapper::toCategoryDto)
                 .toList();

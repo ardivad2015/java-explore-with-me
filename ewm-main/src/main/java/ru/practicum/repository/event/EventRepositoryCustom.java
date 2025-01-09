@@ -4,6 +4,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import ru.practicum.dto.event.EventAdminSearchDto;
+import ru.practicum.dto.event.EventFullDto;
 import ru.practicum.model.Event;
 
 import java.util.List;
@@ -12,4 +14,6 @@ import java.util.List;
 public interface EventRepositoryCustom {
 
     List<Event> findAllByInitiatorIdWithCategoryAndInitiator(Long userId, int offset, int limit);
+
+    List<Event> getAllBySearchRequest(EventAdminSearchDto eventSearchDto);
 }

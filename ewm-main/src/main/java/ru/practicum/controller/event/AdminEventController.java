@@ -22,10 +22,10 @@ public class AdminEventController {
 
     private final EventService eventService;
 
-    @GetMapping("{eventId}")
-    public EventFullDto getById(@Positive @PathVariable("userId") Long userId,
-                                @Positive @PathVariable("eventId") Long eventId) {
-        return eventService.getByIdToUser(userId, eventId);
+    @PatchMapping("{eventId}")
+    public EventFullDto getById(@Positive @PathVariable("eventId") Long eventId,
+                                @Valid @RequestBody UpdateEventAdminRequest updateRequest) {
+        return eventService.updateEventFromAdmin(eventId, updateRequest);
     }
 
     @GetMapping
@@ -36,7 +36,7 @@ public class AdminEventController {
                                       @RequestParam(required = false) LocalDateTime rangeEnd,
                                       @PositiveOrZero @RequestParam(defaultValue = "0") int from,
                                       @Positive @RequestParam(defaultValue = "10") int size) {
-        final EventSearchDto eventSearchDto = EventSearchDto.builder()
+        final EventAdminSearchDto eventSearchDto = EventAdminSearchDto.builder()
                 .usersIds(usersIds)
                 .states(states)
                 .categoriesIds(categoriesIds)
@@ -46,20 +46,11 @@ public class AdminEventController {
                 .size(size)
                 .build();
 
-        return eventService.getAllToAdmin(eventSearchDto);
+        return eventService.getAllFromAdmin(eventSearchDto);
     }
 
-    @PatchMapping("/{eventId}")
-    @ResponseStatus(HttpStatus.OK)
-    public EventFullDto updateEvent(@Positive @PathVariable Long userId,
-                                    @Positive @PathVariable Long eventId,
-                                    @Valid @RequestBody UpdateEventUserRequest updateEventUserRequest) {
-        return eventService.updateEventByUser(userId, eventId, updateEventUserRequest);
-    }
-
-    @GetMapping("/location")
-    public float getByInitiator(@RequestParam float lat1, @RequestParam float lon1,
-                                              @RequestParam float lat2, @RequestParam float lon2) {
-        return eventService.calcDistance(lat1, lon1, lat2, lon2);
+    @GetMapping("/test")
+    public void test() {
+         eventService.test();
     }
 }

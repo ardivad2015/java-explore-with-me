@@ -11,7 +11,11 @@ import ru.practicum.dto.event.EventFullDto;
 import ru.practicum.dto.event.EventShortDto;
 import ru.practicum.dto.event.NewEventDto;
 import ru.practicum.dto.event.UpdateEventUserRequest;
+import ru.practicum.dto.eventrequest.EventRequestStatusUpdateRequest;
+import ru.practicum.dto.eventrequest.EventRequestStatusUpdateResult;
+import ru.practicum.dto.eventrequest.EventRequestDto;
 import ru.practicum.service.event.EventService;
+import ru.practicum.service.eventrequest.EventRequestService;
 
 import java.util.List;
 
@@ -22,6 +26,7 @@ import java.util.List;
 public class PrivateEventController {
 
     private final EventService eventService;
+    private final EventRequestService eventRequestService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -33,7 +38,7 @@ public class PrivateEventController {
     @GetMapping("{eventId}")
     public EventFullDto getById(@Positive @PathVariable("userId") Long userId,
                                 @Positive @PathVariable("eventId") Long eventId) {
-        return eventService.getByIdToUser(userId, eventId);
+        return eventService.getByIdFromPrivate(userId, eventId);
     }
 
     @GetMapping
@@ -48,12 +53,26 @@ public class PrivateEventController {
     public EventFullDto updateEvent(@Positive @PathVariable Long userId,
                                     @Positive @PathVariable Long eventId,
                                     @Valid @RequestBody UpdateEventUserRequest updateEventUserRequest) {
-        return eventService.updateEventByUser(userId, eventId, updateEventUserRequest);
+        return eventService.updateEventFromPrivate(userId, eventId, updateEventUserRequest);
+    }
+
+    @GetMapping("{eventId}/requests")
+    public List<EventRequestDto> getRequests(@Positive @PathVariable("userId") Long userId,
+                                             @Positive @PathVariable("eventId") Long eventId) {
+        return eventService.getAllRequestsByEventIdFromPrivate(userId, eventId);
+    }
+
+    @PatchMapping("{eventId}/requests")
+    public EventRequestStatusUpdateResult updateRequestStatuses(@Positive @PathVariable("userId") Long userId,
+                                                           @Positive @PathVariable("eventId") Long eventId,
+                                                           @Valid @RequestBody EventRequestStatusUpdateRequest
+                                                                   eventRequestStatusUpdateRequest) {
+        return eventService.updateRequestsStatuses(userId, eventId, eventRequestStatusUpdateRequest);
     }
 
     @GetMapping("/location")
     public float getByInitiator(@RequestParam float lat1, @RequestParam float lon1,
-                                              @RequestParam float lat2, @RequestParam float lon2) {
+                                @RequestParam float lat2, @RequestParam float lon2) {
         return eventService.calcDistance(lat1, lon1, lat2, lon2);
     }
 }

@@ -50,7 +50,7 @@ public class Event {
     @Column(name = "title")
     private String title;
     @Transient
-    private Integer confirmedRequests;
+    private Long confirmedRequests;
     @Transient
     private Long views;
 }
