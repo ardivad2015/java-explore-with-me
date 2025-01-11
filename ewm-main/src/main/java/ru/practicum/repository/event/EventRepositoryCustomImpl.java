@@ -2,21 +2,15 @@ package ru.practicum.repository.event;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
-import org.springframework.data.jpa.repository.query.Procedure;
+import com.querydsl.jpa.JPQLQuery;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
-import org.springframework.data.repository.query.Param;
-import ru.practicum.dto.event.EventAdminSearchDto;
-import ru.practicum.dto.event.EventFullDto;
-import ru.practicum.dto.event.EventMapper;
-import ru.practicum.model.Event;
-import ru.practicum.model.QCategory;
-import ru.practicum.model.QEvent;
-import ru.practicum.model.QUser;
+import ru.practicum.dto.event.EventSearchDto;
+import ru.practicum.dto.event.SortType;
+import ru.practicum.model.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 
 public class EventRepositoryCustomImpl extends QuerydslRepositorySupport implements EventRepositoryCustom {
@@ -29,19 +23,16 @@ public class EventRepositoryCustomImpl extends QuerydslRepositorySupport impleme
     }
 
     @Override
-    public List<Event> findAllByInitiatorIdWithCategoryAndInitiator(Long userId, int offset, int limit) {
+    public List<Event> findAllByIdInWithCategoryAndUserEagerly(List<Long> eventIds) {
         return from(event)
                 .innerJoin(event.category, QCategory.category).fetchJoin()
                 .innerJoin(event.initiator, QUser.user).fetchJoin()
-                .where(event.initiator.id.eq(userId))
-                .orderBy(eventOrderSpecifier)
-                .limit(limit)
-                .offset(offset)
+                .where(event.id.in(eventIds))
                 .fetch();
     }
 
     @Override
-    public List<Event> getAllBySearchRequest(EventAdminSearchDto eventSearchDto) {
+    public List<Event> findAllBySearchRequest(EventSearchDto eventSearchDto) {
         final BooleanBuilder booleanBuilder = new BooleanBuilder();
 
         if (Objects.nonNull(eventSearchDto.getUsersIds())) {
@@ -64,27 +55,29 @@ public class EventRepositoryCustomImpl extends QuerydslRepositorySupport impleme
             booleanBuilder.and(event.eventDate.loe(eventSearchDto.getRangeEnd()));
         }
 
-        return from(event)
+        final String text = eventSearchDto.getText();
+        if (Objects.nonNull(text) && !text.isBlank()) {
+           booleanBuilder.and(event.annotation.containsIgnoreCase(text).or(event.description.containsIgnoreCase(text)));
+        }
+
+        if (Objects.nonNull(eventSearchDto.getPaid())) {
+           booleanBuilder.and(event.paid.eq(eventSearchDto.getPaid()));
+        }
+
+         final JPQLQuery<Event> query = from(event)
                 .innerJoin(event.category, QCategory.category).fetchJoin()
                 .innerJoin(event.initiator, QUser.user).fetchJoin()
-                .where(booleanBuilder.getValue())
-                .orderBy(eventOrderSpecifier)
-                .limit(eventSearchDto.getSize())
-                .offset(eventSearchDto.getFrom())
-                .fetch();
+                .where(booleanBuilder.getValue());
+
+        final boolean sortByViews = Objects.nonNull(eventSearchDto.getSort()) &&
+                eventSearchDto.getSort().equals(SortType.VIEWS);
+
+        if (!eventSearchDto.getOnlyAvailable() && !sortByViews) {
+            query.orderBy(eventOrderSpecifier)
+                    .limit(eventSearchDto.getSize())
+                    .offset(eventSearchDto.getFrom());
+        }
+
+        return query.fetch();
     }
-
-//        final String text = eventSearchDto.getText();
-//        if (Objects.nonNull(text) && !text.isBlank()) {
-//            booleanBuilder.and(event.annotation.containsIgnoreCase(text));
-//        }
-//
-//        if (Objects.nonNull(eventSearchDto.getPaid())) {
-//            booleanBuilder.and(event.paid.eq(eventSearchDto.getPaid()));
-//        }
-//
-//        if (Objects.nonNull(eventSearchDto.getOnlyPublished()) && eventSearchDto.getOnlyPublished()) {
-//            booleanBuilder.and(event.publishedOn.isNotNull());
-//        }
-
 }

@@ -1,52 +1,57 @@
 package ru.practicum.controller.event;
 
-import jakarta.validation.Valid;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.event.*;
-import ru.practicum.model.EventState;
 import ru.practicum.service.event.EventService;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
-@RequestMapping("/admin/events")
+@RequestMapping("/events")
 @RequiredArgsConstructor
 @Validated
-public class AdminEventController {
+public class PublicEventController {
 
     private final EventService eventService;
 
-    @PatchMapping("{eventId}")
-    public EventFullDto getById(@Positive @PathVariable("eventId") Long eventId,
-                                @Valid @RequestBody UpdateEventAdminRequest updateRequest) {
-        return eventService.updateEventFromAdmin(eventId, updateRequest);
-    }
-
     @GetMapping
-    public List<EventFullDto> getAll(@RequestParam(value = "users", required = false) List<Long> usersIds,
-                                      @RequestParam(required = false) List<EventState> states,
+    public List<EventShortDto> getAll(@RequestParam(required = false) String text,
                                       @RequestParam(value = "categories", required = false) List<Long> categoriesIds,
+                                      @RequestParam(required = false) Boolean paid,
                                       @RequestParam(required = false) LocalDateTime rangeStart,
                                       @RequestParam(required = false) LocalDateTime rangeEnd,
+                                      @RequestParam(defaultValue = "false") Boolean onlyAvailable,
+                                      @RequestParam(required = false) SortType sort,
                                       @PositiveOrZero @RequestParam(defaultValue = "0") int from,
-                                      @Positive @RequestParam(defaultValue = "10") int size) {
+                                      @Positive @RequestParam(defaultValue = "10") int size,
+                                      HttpServletRequest httpServletRequest) {
         final EventSearchDto eventSearchDto = EventSearchDto.builder()
-                .usersIds(usersIds)
-                .states(states)
+                .text(text)
                 .categoriesIds(categoriesIds)
+                .paid(paid)
                 .rangeStart(rangeStart)
                 .rangeEnd(rangeEnd)
+                .onlyAvailable(onlyAvailable)
+                .sort(sort)
                 .from(from)
                 .size(size)
                 .build();
 
-        return eventService.getAllFromAdmin(eventSearchDto);
+        return eventService.getAllFromPublic(eventSearchDto, httpServletRequest);
     }
+
+    @GetMapping("/{eventId}")
+    public EventFullDto getById(@Positive @PathVariable Long eventId, HttpServletRequest httpServletRequest) {
+        return eventService.getByIdFromPublic(eventId, httpServletRequest);
+    }
+
+
 
     @GetMapping("/test")
     public void test() {

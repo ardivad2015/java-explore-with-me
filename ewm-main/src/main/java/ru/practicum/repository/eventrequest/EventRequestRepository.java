@@ -22,14 +22,14 @@ public interface EventRequestRepository extends JpaRepository<EventRequest, Long
             "from EventRequest as er "+
             "where er.event.id in :ids and er.status = :status "+
             "group by er.event.id")
-    List<RequestsCountDto> countRequestsByEventsIdsAndStatus(@Param("ids") List<Long> ids,
+    List<RequestsCountDto> countRequestsByEventIdsAndStatus(@Param("ids") List<Long> ids,
                                                              @Param("status") RequestStatus status);
 
     List<EventRequest> findAllByEventIdOrderByCreatedAsc(Long eventId);
 
     List<EventRequest> findAllByEventIdAndStatus(Long eventId, RequestStatus status);
 
-    List<EventRequest> findAllByIdInOrderByCreatedAsc(List<Long> ids);
+    List<EventRequest> findAllByUserIdOrderByCreatedAsc(Long userId);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("update EventRequest er set er.status = :status where er.id in :ids")

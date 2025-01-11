@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.dto.eventrequest.EventRequestDto;
 import ru.practicum.dto.eventrequest.EventRequestMapper;
+import ru.practicum.dto.eventrequest.RequestsCountDto;
 import ru.practicum.exception.ConflictPropertyConstraintException;
 import ru.practicum.exception.ConflictRelationsConstraintException;
 import ru.practicum.exception.NotFoundException;
@@ -16,6 +17,9 @@ import ru.practicum.util.ErrorMessage;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,9 +34,9 @@ public class EventRequestServiceImpl implements EventRequestService {
     @Transactional
     public EventRequestDto addNew(Long userId, Long eventId) {
         final User user = userRepository.findById(userId).orElseThrow(() ->
-                new NotFoundException(ErrorMessage.UserNotFoundMessage(userId)));
+                new NotFoundException(ErrorMessage.userNotFoundMessage(userId)));
         final Event event = eventRepository.findById(eventId).orElseThrow(() ->
-                new NotFoundException(ErrorMessage.EventNotFoundMessage(eventId)));
+                new NotFoundException(ErrorMessage.eventNotFoundMessage(eventId)));
 
         if (requestRepository.existsByUserIdAndEventId(userId, eventId)) {
             throw new ConflictRelationsConstraintException("Запрос на участие в этом событии уже был отправлен");
@@ -62,13 +66,42 @@ public class EventRequestServiceImpl implements EventRequestService {
         eventRequest.setEvent(event);
         eventRequest.setStatus(status);
 
-        return requestMapper.toParticipationRequestDto(requestRepository.save(eventRequest));
+        return requestMapper.toEventRequestDto(requestRepository.save(eventRequest));
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<EventRequestDto> getAllByEventIdFromPrivate(Long userId, Long eventId) {
-        return List.of();
+    public List<EventRequestDto> getAllByUserId(Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new NotFoundException(ErrorMessage.userNotFoundMessage(userId));
+        }
+
+        return requestRepository.findAllByUserIdOrderByCreatedAsc(userId).stream()
+                .map(requestMapper::toEventRequestDto)
+                .toList();
     }
 
+    @Override
+    @Transactional
+    public EventRequestDto cancelById(Long userId, Long requestId) {
+        final User user = userRepository.findById(userId).orElseThrow(() ->
+                new NotFoundException(ErrorMessage.userNotFoundMessage(userId)));
+        final EventRequest eventRequest = requestRepository.findById(requestId).orElseThrow(() ->
+                new NotFoundException(ErrorMessage.eventRequestNotFoundMessage(requestId)));
+
+        if (!eventRequest.getUser().equals(user)) {
+            throw new ConflictRelationsConstraintException("Указана заявка от другого пользователя");
+        }
+
+        eventRequest.setStatus(RequestStatus.CANCELED);
+        return requestMapper.toEventRequestDto(eventRequest);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Map<Long, Long> countConfirmedRequestByEventIds(List<Long> eventIds) {
+        return requestRepository.countRequestsByEventIdsAndStatus(
+                eventIds, RequestStatus.CONFIRMED).stream()
+                .collect(Collectors.toMap(RequestsCountDto::getEventId, RequestsCountDto::getRequestsCount));
+    }
 }

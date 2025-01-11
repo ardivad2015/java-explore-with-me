@@ -56,6 +56,28 @@ create table if not exists requests
 CREATE INDEX ON requests (event_id);
 CREATE INDEX ON requests (user_id);
 
+create table if not exists compilations
+(
+    compilation_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    pinned BOOLEAN NOT NULL,
+    title varchar(2048) NOT NULL,
+    CONSTRAINT min_length_title CHECK (length(title) >= 1),
+    CONSTRAINT uq_title UNIQUE (title)
+);
+
+create table if not exists compilations_events
+(
+    comp_event_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    compilation_id BIGINT NOT NULL,
+    event_id BIGINT NOT NULL,
+    CONSTRAINT compilation_id_fk foreign key (compilation_id) references compilations (compilation_id) ON DELETE CASCADE,
+    CONSTRAINT event_id_fk foreign key (event_id) references events (event_id) ON DELETE CASCADE,
+    CONSTRAINT comp_event_unq UNIQUE (compilation_id,event_id)
+);
+
+CREATE INDEX ON compilations_events (compilation_id);
+CREATE INDEX ON compilations_events (event_id);
+
 CREATE OR REPLACE FUNCTION location_distance(lat1 float, lon1 float, lat2 float, lon2 float)
     RETURNS float
 AS

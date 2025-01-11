@@ -11,13 +11,17 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
-public class EventAdminSearchDto {
+public class EventSearchDto {
 
     private List<Long> usersIds;
     private List<EventState> states;
     private List<Long> categoriesIds;
     private LocalDateTime rangeStart;
     private LocalDateTime rangeEnd;
+    private String text;
+    private Boolean paid;
+    private Boolean onlyAvailable;
+    private SortType sort;
     private int from;
     private int size;
 }

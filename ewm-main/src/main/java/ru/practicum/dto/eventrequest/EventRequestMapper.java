@@ -9,5 +9,5 @@ public interface EventRequestMapper {
 
     @Mapping(target = "requester", source = "user.id")
     @Mapping(target = "event", source = "event.id")
-    EventRequestDto toParticipationRequestDto(EventRequest request);
+    EventRequestDto toEventRequestDto(EventRequest request);
 }

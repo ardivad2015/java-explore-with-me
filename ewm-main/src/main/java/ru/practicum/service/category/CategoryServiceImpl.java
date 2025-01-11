@@ -78,6 +78,6 @@ public class CategoryServiceImpl implements CategoryService {
 
     private Category findById(Long categoryId) {
         return categoryRepository.findById(categoryId).orElseThrow(() ->
-                new NotFoundException(ErrorMessage.CategoryNotFoundMessage(categoryId)));
+                new NotFoundException(ErrorMessage.categoryNotFoundMessage(categoryId)));
     }
 }

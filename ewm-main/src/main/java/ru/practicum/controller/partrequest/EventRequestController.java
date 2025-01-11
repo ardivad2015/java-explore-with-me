@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.eventrequest.EventRequestDto;
 import ru.practicum.service.eventrequest.EventRequestService;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/users/{userId}/requests")
 @RequiredArgsConstructor
@@ -18,8 +20,19 @@ public class EventRequestController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public EventRequestDto addNewEvent(@Positive @PathVariable("userId") Long userId,
+    public EventRequestDto addNew(@Positive @PathVariable("userId") Long userId,
                                        @Positive @RequestParam("eventId") Long eventId) {
         return eventRequestService.addNew(userId, eventId);
+    }
+
+    @GetMapping
+    public List<EventRequestDto> getAllByUserId(@Positive @PathVariable("userId") Long userId) {
+        return eventRequestService.getAllByUserId(userId);
+    }
+
+    @PatchMapping("/{requestId}/cancel")
+    public EventRequestDto cancel(@Positive @PathVariable("userId") Long userId,
+                                  @Positive @PathVariable("requestId") Long requestId) {
+        return eventRequestService.cancelById(userId, requestId);
     }
 }
