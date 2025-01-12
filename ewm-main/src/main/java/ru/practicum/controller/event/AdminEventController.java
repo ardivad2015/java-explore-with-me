@@ -39,17 +39,16 @@ public class AdminEventController {
                 .usersIds(usersIds)
                 .states(states)
                 .categoriesIds(categoriesIds)
+                .usePeriod(true)
                 .rangeStart(rangeStart)
                 .rangeEnd(rangeEnd)
+                .sortInQuery(true)
+                .pageable(true)
+                .pageInQuery(true)
                 .from(from)
                 .size(size)
                 .build();
 
         return eventService.getAllFromAdmin(eventSearchDto);
-    }
-
-    @GetMapping("/test")
-    public void test() {
-         eventService.test();
     }
 }

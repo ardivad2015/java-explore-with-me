@@ -11,17 +11,15 @@ import ru.practicum.model.Event;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class StatisticServiceImpl implements StatisticService {
 
     private final StatisticsClient statisticsClient;
-    private final String GET_EVENT_ENDPOINT = "/events/";
+    private static final String GET_EVENT_ENDPOINT = "/events/";
     @Value("${ewm.app.name}")
-    private String APP_NAME;
+    private final String appName;
 
     @Override
     public void saveEndpointHit(HttpServletRequest request) {
@@ -29,7 +27,7 @@ public class StatisticServiceImpl implements StatisticService {
 
         statsHitDto.setIp(request.getRemoteAddr());
         statsHitDto.setUri(request.getRequestURI());
-        statsHitDto.setApp(APP_NAME);
+        statsHitDto.setApp(appName);
         statsHitDto.setTimestamp(LocalDateTime.now());
 
         try {

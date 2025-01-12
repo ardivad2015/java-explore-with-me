@@ -62,7 +62,7 @@ class StatisticsControllerTest {
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(statsHitDto)))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
 
         verify(statsService).save(statsHitDtoArgumentCaptor.capture());
         final StatsHitDto savedStatsHitDto = statsHitDtoArgumentCaptor.getValue();

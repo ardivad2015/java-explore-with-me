@@ -2,14 +2,14 @@ package ru.practicum.service.compilation;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.dto.compilation.*;
 import ru.practicum.exception.ConflictRelationsConstraintException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.model.Compilation;
 import ru.practicum.model.Event;
 import ru.practicum.repository.compilation.CompilationRepository;
-import ru.practicum.repository.event.EventRepository;
-import ru.practicum.service.event.util.EventProcessing;
+import ru.practicum.service.event.EventService;
 import ru.practicum.service.eventrequest.EventRequestService;
 import ru.practicum.service.statistic.StatisticService;
 import ru.practicum.util.ErrorMessage;
@@ -23,28 +23,29 @@ import java.util.stream.Collectors;
 public class CompilationServiceImpl implements CompilationService {
 
     private final CompilationRepository compilationRepository;
-    private final EventRepository eventRepository;
+    private final EventService eventService;
     private final StatisticService statisticService;
     private final EventRequestService eventRequestService;
     private final CompilationMapper compilationMapper;
 
     @Override
+    @Transactional
     public CompilationDto addNew(NewCompilationDto newCompilationDto) {
         if (compilationRepository.existsByTitle(newCompilationDto.getTitle())) {
             throw new ConflictRelationsConstraintException(
                     ErrorMessage.compilationWithTitleExists(newCompilationDto.getTitle()));
         }
 
-        final List<Long> eventIdsToAdd = newCompilationDto.getEvents();
+        final List<Long> eventIds = newCompilationDto.getEvents();
         final Compilation compilation = compilationMapper.toCompilation(newCompilationDto);
 
-        setEventsToCompilation(compilation, eventIdsToAdd);
-
+        compilation.setEvents(getCompilationEvents(eventIds));
         compilationRepository.save(compilation);
         return compilationMapper.toCompilationDto(compilation);
     }
 
     @Override
+    @Transactional
     public CompilationDto update(Long compId, UpdateCompilationRequest updateRequest) {
         final Compilation compilation = compilationRepository.findById(compId).orElseThrow(() ->
                 new NotFoundException(ErrorMessage.compilationNotFoundMessage(compId)));
@@ -52,14 +53,16 @@ public class CompilationServiceImpl implements CompilationService {
         Optional.ofNullable(updateRequest.getTitle()).ifPresent(compilation::setTitle);
         Optional.ofNullable(updateRequest.getPinned()).ifPresent(compilation::setPinned);
 
-        final List<Long> eventIdsToAdd = updateRequest.getEvents();
+        final List<Long> eventIds = updateRequest.getEvents();
 
-        setEventsToCompilation(compilation, eventIdsToAdd);
-
+        if (Objects.nonNull(eventIds)) {
+            compilation.setEvents(getCompilationEvents(eventIds));
+        }
         return compilationMapper.toCompilationDto(compilation);
     }
 
     @Override
+    @Transactional
     public void delete(Long compId) {
         if (!compilationRepository.existsById(compId)) {
             throw new NotFoundException(ErrorMessage.compilationNotFoundMessage(compId));
@@ -68,47 +71,43 @@ public class CompilationServiceImpl implements CompilationService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<CompilationDto> getAll(CompilationSearchDto searchDto) {
         final List<Compilation> compilations =
                 compilationRepository.findAllBySearchRequestWithNestedEntitiesEagerly(searchDto);
-
+        final Set<Event> events = compilations.stream()
+                .filter(compilation -> Objects.nonNull(compilation.getEvents()))
+                .flatMap(compilation -> compilation.getEvents().stream())
+                .collect(Collectors.toSet());
+        eventService.addAdditionalInfo(events);
+        return compilations.stream().map(compilationMapper::toCompilationDto).toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public CompilationDto getById(Long compId) {
         final Compilation compilation = compilationRepository.findByIdWithNestedEntitiesEagerly(compId);
         final Collection<Event> events = compilation.getEvents();
 
         if (Objects.nonNull(events)) {
-            final List<Long> eventIds = compilation.getEvents().stream().map(Event::getId).toList();
-            final Map<Long, Long> views = statisticService.getStatsByEvents(events);
-            final Map<Long, Long> confirmedRequests = eventRequestService.countConfirmedRequestByEventIds(eventIds);
-
-            events.forEach(event -> EventProcessing.fillAdditionalInfo(event, views, confirmedRequests));
+            eventService.addAdditionalInfo(events);
         }
-
         return compilationMapper.toCompilationDto(compilation);
     }
 
-    private void setEventsToCompilation(Compilation compilation, List<Long> eventIds) {
+    private Set<Event> getCompilationEvents(List<Long> eventIds) {
         if (Objects.isNull(eventIds)) {
-            return;
+            return Collections.emptySet();
         }
 
-        final Map<Long, Event> eventsToAdd = eventRepository.findAllByIdInWithCategoryAndUserEagerly(eventIds).stream()
+        final Map<Long, Event> events = eventService.getAllByIds(eventIds).stream()
                 .collect(Collectors.toMap(Event::getId, Function.identity()));
 
         for (Long eventId : eventIds) {
-            if (Objects.isNull(eventsToAdd.get(eventId))) {
+            if (Objects.isNull(events.get(eventId))) {
                 throw new NotFoundException(ErrorMessage.eventNotFoundMessage(eventId));
             }
         }
-
-        final Collection<Event> events = eventsToAdd.values();
-        final Map<Long, Long> views = statisticService.getStatsByEvents(events);
-        final Map<Long, Long> confirmedRequests = eventRequestService.countConfirmedRequestByEventIds(eventIds);
-
-        events.forEach(event -> EventProcessing.fillAdditionalInfo(event, views, confirmedRequests));
-        compilation.setEvents(new HashSet<>(events));
+        return new HashSet<>(events.values());
     }
 }

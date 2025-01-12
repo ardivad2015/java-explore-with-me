@@ -19,8 +19,8 @@ public interface EventRequestRepository extends JpaRepository<EventRequest, Long
     Integer countByEventIdAndStatus(Long eventId, RequestStatus status);
 
     @Query("select new ru.practicum.dto.eventrequest.RequestsCountDto(er.event.id, count(er.id))" +
-            "from EventRequest as er "+
-            "where er.event.id in :ids and er.status = :status "+
+            "from EventRequest as er " +
+            "where er.event.id in :ids and er.status = :status " +
             "group by er.event.id")
     List<RequestsCountDto> countRequestsByEventIdsAndStatus(@Param("ids") List<Long> ids,
                                                              @Param("status") RequestStatus status);

@@ -16,9 +16,9 @@ import ru.practicum.repository.user.UserRepository;
 import ru.practicum.util.ErrorMessage;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -99,7 +99,8 @@ public class EventRequestServiceImpl implements EventRequestService {
 
     @Override
     @Transactional(readOnly = true)
-    public Map<Long, Long> countConfirmedRequestByEventIds(List<Long> eventIds) {
+    public Map<Long, Long> countConfirmedRequestByEvents(Collection<Event> events) {
+        List<Long> eventIds = events.stream().map(Event::getId).toList();
         return requestRepository.countRequestsByEventIdsAndStatus(
                 eventIds, RequestStatus.CONFIRMED).stream()
                 .collect(Collectors.toMap(RequestsCountDto::getEventId, RequestsCountDto::getRequestsCount));

@@ -1,9 +1,9 @@
 package ru.practicum.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -28,8 +28,8 @@ public class StatisticsController {
     }
 
     @GetMapping("/stats")
-    public List<ViewStatsDto> getStats(@RequestParam("start") LocalDateTime start,
-                                       @RequestParam("end") LocalDateTime end,
+    public List<ViewStatsDto> getStats(@NotNull @RequestParam("start") LocalDateTime start,
+                                       @NotNull @RequestParam("end") LocalDateTime end,
                                        @RequestParam(value = "uris", required = false) List<String> uris,
                                        @RequestParam(value = "unique", defaultValue = "false") boolean unique) {
         return statsService.getStats(start, end, uris, unique);

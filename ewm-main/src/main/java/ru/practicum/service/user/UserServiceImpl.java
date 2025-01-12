@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.dto.user.UserDto;
 import ru.practicum.dto.user.UserMapper;
 import ru.practicum.exception.ConflictPropertyConstraintException;
-import ru.practicum.exception.NotFoundException;
 import ru.practicum.model.User;
 import ru.practicum.repository.user.UserRepository;
 

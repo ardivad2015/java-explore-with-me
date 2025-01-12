@@ -13,15 +13,20 @@ import java.util.List;
 @Builder
 public class EventSearchDto {
 
+    private List<Long> ids;
     private List<Long> usersIds;
     private List<EventState> states;
     private List<Long> categoriesIds;
+    private boolean usePeriod;
     private LocalDateTime rangeStart;
     private LocalDateTime rangeEnd;
     private String text;
     private Boolean paid;
-    private Boolean onlyAvailable;
+    private boolean onlyAvailable;
     private SortType sort;
     private int from;
     private int size;
+    private boolean sortInQuery;
+    private boolean pageInQuery;
+    private boolean pageable;
 }

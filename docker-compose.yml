@@ -47,7 +47,9 @@ services:
       - "8080:8080"
     depends_on:
       - ewm-main-db
+      - stats-server
     environment:
+      - STATISTICS_URL=http://localhost:9090
       - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-main-db:5432/ewmmain
       - SPRING_DATASOURCE_USERNAME=ewmmainadmin
       - SPRING_DATASOURCE_PASSWORD=ewmmainadmin

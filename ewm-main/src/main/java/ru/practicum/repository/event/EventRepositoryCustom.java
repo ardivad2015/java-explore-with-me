@@ -9,7 +9,7 @@ import java.util.List;
 @Repository
 public interface EventRepositoryCustom {
 
-    List<Event> findAllByIdInWithCategoryAndUserEagerly(List<Long> eventIds);
+    Event findByIdWithNestedEntitiesEagerly(Long eventId);
 
     List<Event> findAllBySearchRequest(EventSearchDto eventSearchDto);
 }

@@ -6,6 +6,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import ru.practicum.exception.BadRequestException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +27,14 @@ public class ErrorHandlingControllerAdvice {
         errorList.addAll(e.getBindingResult().getGlobalErrors().stream()
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .toList());
+        return new ErrorResponse(errorList);
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse onBadRequestException(BadRequestException e) {
+        final List<String> errorList = new ArrayList<>();
+        errorList.add(e.getMessage());
         return new ErrorResponse(errorList);
     }
 

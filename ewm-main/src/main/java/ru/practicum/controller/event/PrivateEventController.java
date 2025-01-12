@@ -69,10 +69,4 @@ public class PrivateEventController {
                                                                    eventRequestStatusUpdateRequest) {
         return eventService.updateRequestsStatuses(userId, eventId, eventRequestStatusUpdateRequest);
     }
-
-    @GetMapping("/location")
-    public float getByInitiator(@RequestParam float lat1, @RequestParam float lon1,
-                                @RequestParam float lat2, @RequestParam float lon2) {
-        return eventService.calcDistance(lat1, lon1, lat2, lon2);
-    }
 }

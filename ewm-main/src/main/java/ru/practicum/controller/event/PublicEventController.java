@@ -26,7 +26,7 @@ public class PublicEventController {
                                       @RequestParam(required = false) Boolean paid,
                                       @RequestParam(required = false) LocalDateTime rangeStart,
                                       @RequestParam(required = false) LocalDateTime rangeEnd,
-                                      @RequestParam(defaultValue = "false") Boolean onlyAvailable,
+                                      @RequestParam(defaultValue = "false") boolean onlyAvailable,
                                       @RequestParam(required = false) SortType sort,
                                       @PositiveOrZero @RequestParam(defaultValue = "0") int from,
                                       @Positive @RequestParam(defaultValue = "10") int size,
@@ -35,9 +35,13 @@ public class PublicEventController {
                 .text(text)
                 .categoriesIds(categoriesIds)
                 .paid(paid)
+                .usePeriod(true)
                 .rangeStart(rangeStart)
                 .rangeEnd(rangeEnd)
                 .onlyAvailable(onlyAvailable)
+                .sortInQuery(true)
+                .pageInQuery(true)
+                .pageable(true)
                 .sort(sort)
                 .from(from)
                 .size(size)
@@ -49,12 +53,5 @@ public class PublicEventController {
     @GetMapping("/{eventId}")
     public EventFullDto getById(@Positive @PathVariable Long eventId, HttpServletRequest httpServletRequest) {
         return eventService.getByIdFromPublic(eventId, httpServletRequest);
-    }
-
-
-
-    @GetMapping("/test")
-    public void test() {
-         eventService.test();
     }
 }

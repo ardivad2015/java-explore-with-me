@@ -5,7 +5,9 @@ import ru.practicum.dto.event.*;
 import ru.practicum.dto.eventrequest.EventRequestStatusUpdateRequest;
 import ru.practicum.dto.eventrequest.EventRequestStatusUpdateResult;
 import ru.practicum.dto.eventrequest.EventRequestDto;
+import ru.practicum.model.Event;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface EventService {
@@ -32,7 +34,11 @@ public interface EventService {
                                                                 EventRequestStatusUpdateRequest
                                                                    eventRequestStatusUpdateRequest);
 
-    void test();
+    List<Event> getAllByIds(List<Long> eventIds);
 
-    float calcDistance(float lat1, float lon1, float lat2, float lon2);
+    Event getById(Long eventId);
+
+    void addAdditionalInfo(Event event);
+
+    void addAdditionalInfo(Collection<Event> events);
 }

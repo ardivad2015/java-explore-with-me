@@ -5,13 +5,11 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.JPQLQuery;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import ru.practicum.dto.event.EventSearchDto;
-import ru.practicum.dto.event.SortType;
 import ru.practicum.model.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
-
 
 public class EventRepositoryCustomImpl extends QuerydslRepositorySupport implements EventRepositoryCustom {
 
@@ -23,17 +21,21 @@ public class EventRepositoryCustomImpl extends QuerydslRepositorySupport impleme
     }
 
     @Override
-    public List<Event> findAllByIdInWithCategoryAndUserEagerly(List<Long> eventIds) {
+    public Event findByIdWithNestedEntitiesEagerly(Long eventId) {
         return from(event)
                 .innerJoin(event.category, QCategory.category).fetchJoin()
                 .innerJoin(event.initiator, QUser.user).fetchJoin()
-                .where(event.id.in(eventIds))
-                .fetch();
+                .where(event.id.eq(eventId))
+                .fetchOne();
     }
 
     @Override
     public List<Event> findAllBySearchRequest(EventSearchDto eventSearchDto) {
         final BooleanBuilder booleanBuilder = new BooleanBuilder();
+
+        if (Objects.nonNull(eventSearchDto.getIds())) {
+            booleanBuilder.and(event.id.in(eventSearchDto.getIds()));
+        }
 
         if (Objects.nonNull(eventSearchDto.getUsersIds())) {
             booleanBuilder.and(event.initiator.id.in(eventSearchDto.getUsersIds()));
@@ -47,12 +49,14 @@ public class EventRepositoryCustomImpl extends QuerydslRepositorySupport impleme
             booleanBuilder.and(event.category.id.in(eventSearchDto.getCategoriesIds()));
         }
 
-        final LocalDateTime rangeStart = Objects.nonNull(eventSearchDto.getRangeStart()) ?
-                eventSearchDto.getRangeStart().withNano(0) : LocalDateTime.now().withNano(0);
-        booleanBuilder.and(event.eventDate.goe(rangeStart));
+        if (eventSearchDto.isUsePeriod()) {
+            final LocalDateTime rangeStart = Objects.nonNull(eventSearchDto.getRangeStart()) ?
+                    eventSearchDto.getRangeStart().withNano(0) : LocalDateTime.now().withNano(0);
+            booleanBuilder.and(event.eventDate.goe(rangeStart));
 
-        if (Objects.nonNull(eventSearchDto.getRangeEnd())) {
-            booleanBuilder.and(event.eventDate.loe(eventSearchDto.getRangeEnd()));
+            if (Objects.nonNull(eventSearchDto.getRangeEnd())) {
+                booleanBuilder.and(event.eventDate.loe(eventSearchDto.getRangeEnd()));
+            }
         }
 
         final String text = eventSearchDto.getText();
@@ -64,17 +68,17 @@ public class EventRepositoryCustomImpl extends QuerydslRepositorySupport impleme
            booleanBuilder.and(event.paid.eq(eventSearchDto.getPaid()));
         }
 
-         final JPQLQuery<Event> query = from(event)
+        final JPQLQuery<Event> query = from(event)
                 .innerJoin(event.category, QCategory.category).fetchJoin()
                 .innerJoin(event.initiator, QUser.user).fetchJoin()
                 .where(booleanBuilder.getValue());
 
-        final boolean sortByViews = Objects.nonNull(eventSearchDto.getSort()) &&
-                eventSearchDto.getSort().equals(SortType.VIEWS);
+        if (eventSearchDto.isSortInQuery()) {
+            query.orderBy(eventOrderSpecifier);
+        }
 
-        if (!eventSearchDto.getOnlyAvailable() && !sortByViews) {
-            query.orderBy(eventOrderSpecifier)
-                    .limit(eventSearchDto.getSize())
+        if (eventSearchDto.isPageable() && eventSearchDto.isPageInQuery()) {
+            query.limit(eventSearchDto.getSize())
                     .offset(eventSearchDto.getFrom());
         }
 

@@ -4,13 +4,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 import ru.practicum.dto.category.CategoryDto;
-import ru.practicum.dto.category.CategoryMapper;
 import ru.practicum.dto.category.CategoryMapperImpl;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.model.Category;
 import ru.practicum.repository.category.CategoryRepository;
+import ru.practicum.repository.event.EventRepository;
 
 import java.util.Optional;
 
@@ -23,13 +22,16 @@ class CategoryServiceImplTest {
 
     @Mock
     private CategoryRepository categoryRepository;
+    @Mock
+    private EventRepository eventRepository;
 
     @Captor
     ArgumentCaptor<Category> categoryArgumentCaptor;
 
     @Test
     void update_whenCategoryExistsAndNameUnique_thenUpdatedFields() {
-        final CategoryService categoryService = new CategoryServiceImpl(categoryRepository, new CategoryMapperImpl());
+        final CategoryService categoryService = new CategoryServiceImpl(categoryRepository,
+                eventRepository, new CategoryMapperImpl());
         final Long id = 1L;
         final String name = "Cat. 1";
         final String updatedName = "Cat. 1 upd";
@@ -55,7 +57,8 @@ class CategoryServiceImplTest {
 
     @Test
     void update_whenCategoryNotFound_thenNotFoundExceptionThrown() {
-        final CategoryService categoryService = new CategoryServiceImpl(categoryRepository, new CategoryMapperImpl());
+        final CategoryService categoryService = new CategoryServiceImpl(categoryRepository,
+                eventRepository, new CategoryMapperImpl());
         final Long id = 1L;
         final String name = "Cat. 1";
         final CategoryDto categoryDto = new CategoryDto();

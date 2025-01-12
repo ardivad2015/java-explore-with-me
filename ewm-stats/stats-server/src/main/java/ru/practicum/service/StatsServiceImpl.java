@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.StatsHitDto;
 import ru.practicum.ViewStatsDto;
+import ru.practicum.exception.BadRequestException;
 import ru.practicum.mapper.StatsMapper;
 import ru.practicum.model.Hit;
 import ru.practicum.repository.StatsRepository;
@@ -29,8 +30,11 @@ public class StatsServiceImpl implements StatsService {
     @Override
     @Transactional(readOnly = true)
     public List<ViewStatsDto> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, boolean unique) {
-          return statsRepository.findAllByUriInAndTimestampBetween(start, end, uris, unique).stream()
-                  .map(statsMapper::toViewStatsDto)
-                  .toList();
+        if (start.isAfter(end)) {
+            throw new BadRequestException("Дата начала не может быть позднее даты окончания");
+        }
+        return statsRepository.findAllByUriInAndTimestampBetween(start, end, uris, unique).stream()
+                .map(statsMapper::toViewStatsDto)
+                .toList();
     }
 }

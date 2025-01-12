@@ -1,15 +1,9 @@
 package ru.practicum.repository.compilation;
 
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.jpa.JPQLQuery;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import ru.practicum.dto.compilation.CompilationSearchDto;
-import ru.practicum.dto.event.EventSearchDto;
-import ru.practicum.dto.event.SortType;
 import ru.practicum.model.*;
-
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 

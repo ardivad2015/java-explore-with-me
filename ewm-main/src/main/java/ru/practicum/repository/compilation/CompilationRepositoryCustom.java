@@ -2,10 +2,7 @@ package ru.practicum.repository.compilation;
 
 import org.springframework.stereotype.Repository;
 import ru.practicum.dto.compilation.CompilationSearchDto;
-import ru.practicum.dto.event.EventSearchDto;
 import ru.practicum.model.Compilation;
-import ru.practicum.model.Event;
-
 import java.util.List;
 
 @Repository
