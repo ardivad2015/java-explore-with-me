@@ -2,16 +2,16 @@ package ru.practicum.property;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-@ConfigurationProperties(prefix = "statistics")
+@ConfigurationProperties(prefix = "stat")
 public class StatisticsClientProperties {
 
-    private String serverUrl;
+    private String url;
 
     public String getUrl() {
-        return this.serverUrl;
+        return this.url;
     }
 
-    public void setUrl(String serverUrl) {
-        this.serverUrl = serverUrl;
+    public void setUrl(String url) {
+        this.url = url;
     }
 }

@@ -12,12 +12,12 @@ import java.util.Map;
 public class StatisticsClient {
 
     private final RestTemplate restTemplate;
-    private final String statsServerUrl;
+    private final String statsUrl;
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public StatisticsClient(RestTemplate restTemplate, String statsServerUrl) {
         this.restTemplate = restTemplate;
-        this.statsServerUrl = statsServerUrl;
+        this.statsUrl = statsServerUrl;
     }
 
     public ResponseEntity<List<ViewStatsDto>> getStats(LocalDateTime start, LocalDateTime end, List<String> uris,
@@ -40,7 +40,7 @@ public class StatisticsClient {
                 "uris", urisString.toString(),
                 "unique", unique
         );
-        final String uri = statsServerUrl + "/stats?start={start}&end={end}&uris={uris}&unique={unique}";
+        final String uri = statsUrl + "/stats?start={start}&end={end}&uris={uris}&unique={unique}";
         final HttpEntity<Object> requestEntity = new HttpEntity<>(null, defaultHeaders());
 
         return restTemplate.exchange(uri, HttpMethod.GET, requestEntity,
@@ -48,7 +48,7 @@ public class StatisticsClient {
     }
 
     public ResponseEntity<StatsHitDto> save(StatsHitDto statsHitDto) {
-        final String uri = statsServerUrl + "/hit";
+        final String uri = statsUrl + "/hit";
         final HttpEntity<StatsHitDto> requestEntity = new HttpEntity<>(statsHitDto, defaultHeaders());
 
         return restTemplate.exchange(uri, HttpMethod.POST,
