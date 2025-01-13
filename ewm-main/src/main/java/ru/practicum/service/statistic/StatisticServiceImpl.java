@@ -18,8 +18,7 @@ public class StatisticServiceImpl implements StatisticService {
 
     private final StatisticsClient statisticsClient;
     private static final String GET_EVENT_ENDPOINT = "/events/";
-    @Value("${ewm.app.name}")
-    private final String appName;
+    private static final String APP_NAME = "ewm-main-service";
 
     @Override
     public void saveEndpointHit(HttpServletRequest request) {
@@ -27,7 +26,7 @@ public class StatisticServiceImpl implements StatisticService {
 
         statsHitDto.setIp(request.getRemoteAddr());
         statsHitDto.setUri(request.getRequestURI());
-        statsHitDto.setApp(appName);
+        statsHitDto.setApp(APP_NAME);
         statsHitDto.setTimestamp(LocalDateTime.now());
 
         try {

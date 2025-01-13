@@ -13,7 +13,7 @@ services:
       timeout: 5s
       interval: 5s
       retries: 10
-  ewm-main-db:
+  ewm-db:
     image: postgres:16.1
     container_name: postgres-ewm-main-db
     ports:
@@ -39,17 +39,16 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://stats-db:5432/statistics
       - SPRING_DATASOURCE_USERNAME=statistics
       - SPRING_DATASOURCE_PASSWORD=statistics
-  ewm-main-server:
+  ewm-service:
     build: ./ewm-main
     image: ewm-main
     container_name: ewm-main
     ports:
       - "8080:8080"
     depends_on:
-      - ewm-main-db
-      - stats-server
+      - ewm-db
     environment:
       - STATISTICS_URL=http://localhost:9090
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-main-db:5432/ewmmain
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db:5432/ewmmain
       - SPRING_DATASOURCE_USERNAME=ewmmainadmin
       - SPRING_DATASOURCE_PASSWORD=ewmmainadmin
