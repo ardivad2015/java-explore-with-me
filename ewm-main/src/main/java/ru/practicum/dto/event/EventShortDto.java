@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import ru.practicum.dto.category.CategoryDto;
 import ru.practicum.dto.user.UserShortDto;
+import ru.practicum.dto.venue.VenueDto;
 
 import java.time.LocalDateTime;
 
@@ -21,4 +22,5 @@ public class EventShortDto {
     private String title;
     private Long confirmedRequests;
     private Long views;
+    private VenueDto venue;
 }

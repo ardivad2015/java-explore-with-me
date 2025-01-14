@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import ru.practicum.dto.category.CategoryDto;
 import ru.practicum.dto.user.UserShortDto;
+import ru.practicum.dto.venue.VenueDto;
 import ru.practicum.model.EventState;
 import ru.practicum.model.Location;
 
@@ -35,4 +36,5 @@ public class EventFullDto {
     private EventState state;
     private String title;
     private Long views;
+    private VenueDto venue;
 }

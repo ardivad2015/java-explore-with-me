@@ -36,4 +36,7 @@ public class UpdateEventAdminRequest {
     private StateAction stateAction;
     @Size(min = 3, max = 120)
     private String title;
+    @JsonProperty("venue")
+    @Positive
+    private Long venueId;
 }

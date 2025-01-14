@@ -29,4 +29,9 @@ public class EventSearchDto {
     private boolean sortInQuery;
     private boolean pageInQuery;
     private boolean pageable;
+    private Long venueId;
+    private Float radius;
+    private Float lat;
+    private Float lon;
+
 }

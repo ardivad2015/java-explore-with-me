@@ -42,7 +42,7 @@ class UserServiceImpl implements UserService {
 
     @Override
     public List<UserDto> getAllByIds(List<Long> ids, Integer from, Integer size) {
-        final Pageable pageable = PageRequest.of(0, size + from, Sort.by("id").ascending());
+        final Pageable pageable = PageRequest.of(from, size, Sort.by("id").ascending());
         Page<User> users;
         if (ids == null || ids.isEmpty()) {
             users = userRepository.findAll(pageable);
@@ -50,7 +50,6 @@ class UserServiceImpl implements UserService {
             users = userRepository.findAllByIdIn(ids, pageable);
         }
         return users.stream()
-                .skip(from)
                 .map(userMapper::toUserDto)
                 .toList();
     }

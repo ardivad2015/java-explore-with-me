@@ -15,6 +15,7 @@ import ru.practicum.repository.category.CategoryRepository;
 import ru.practicum.repository.event.EventRepository;
 import ru.practicum.repository.eventrequest.EventRequestRepository;
 import ru.practicum.repository.user.UserRepository;
+import ru.practicum.repository.venue.VenueRepository;
 import ru.practicum.service.eventrequest.EventRequestService;
 import ru.practicum.service.statistic.StatisticService;
 import ru.practicum.util.ErrorMessage;
@@ -37,6 +38,7 @@ public class EventServiceImpl implements EventService {
     private final EventRequestRepository requestRepository;
     private final EventRequestService eventRequestService;
     private final EventRequestMapper requestMapper;
+    private final VenueRepository venueRepository;
 
     @Override
     @Transactional
@@ -45,12 +47,23 @@ public class EventServiceImpl implements EventService {
 
         verifyEventDate(newEventDto.getEventDate(), createdOn);
 
+        if (Objects.isNull(newEventDto.getLocation()) && Objects.isNull(newEventDto.getVenueId())) {
+            throw new ConflictPropertyConstraintException("Должны быть указаны координаты или место проведения " +
+                    "события");
+        }
+
         final User initiator = userRepository.findById(userId).orElseThrow(() ->
                 new NotFoundException(ErrorMessage.userNotFoundMessage(userId)));
         final Category category = categoryRepository.findById(newEventDto.getCategoryId()).orElseThrow(() ->
                 new NotFoundException(ErrorMessage.categoryNotFoundMessage(newEventDto.getCategoryId())));
-
         final Event event = eventMapper.toEvent(newEventDto);
+
+        if (Objects.nonNull(newEventDto.getVenueId())) {
+            final Venue venue = venueRepository.findById(newEventDto.getVenueId()).orElseThrow(() ->
+                    new NotFoundException(ErrorMessage.venueNotFoundMessage(newEventDto.getVenueId())));
+            event.setLocation(venue.getLocation());
+            event.setVenue(venue);
+        }
         event.setCategory(category);
         event.setInitiator(initiator);
         event.setCreatedOn(createdOn);
@@ -126,6 +139,12 @@ public class EventServiceImpl implements EventService {
         Optional.ofNullable(updateEventDto.getParticipantLimit()).ifPresent(event::setParticipantLimit);
         Optional.ofNullable(updateEventDto.getRequestModeration()).ifPresent(event::setRequestModeration);
         Optional.ofNullable(updateEventDto.getTitle()).ifPresent(event::setTitle);
+        if (Objects.nonNull(updateEventDto.getVenueId())) {
+            final Venue venue = venueRepository.findById(updateEventDto.getVenueId()).orElseThrow(() ->
+                    new NotFoundException(ErrorMessage.venueNotFoundMessage(updateEventDto.getVenueId())));
+            event.setLocation(venue.getLocation());
+            event.setVenue(venue);
+        }
         Optional.ofNullable(updateEventDto.getStateAction()).ifPresent(stateAction -> {
             if (stateAction.equals(StateAction.SEND_TO_REVIEW)) {
                 event.setState(EventState.PENDING);
@@ -172,7 +191,12 @@ public class EventServiceImpl implements EventService {
         Optional.ofNullable(updateEventDto.getParticipantLimit()).ifPresent(event::setParticipantLimit);
         Optional.ofNullable(updateEventDto.getRequestModeration()).ifPresent(event::setRequestModeration);
         Optional.ofNullable(updateEventDto.getTitle()).ifPresent(event::setTitle);
-
+        if (Objects.nonNull(updateEventDto.getVenueId())) {
+            final Venue venue = venueRepository.findById(updateEventDto.getVenueId()).orElseThrow(() ->
+                    new NotFoundException(ErrorMessage.venueNotFoundMessage(updateEventDto.getVenueId())));
+            event.setLocation(venue.getLocation());
+            event.setVenue(venue);
+        }
         return eventMapper.toEventFullDto(event);
     }
 
@@ -344,6 +368,12 @@ public class EventServiceImpl implements EventService {
         final boolean sortByViews = SortType.VIEWS.equals(searchDto.getSort());
         final boolean processingIsNeeded = sortByViews || searchDto.isOnlyAvailable();
 
+        if (Objects.nonNull(searchDto.getVenueId())) {
+            final Venue venue = venueRepository.findById(searchDto.getVenueId()).orElseThrow(() ->
+                    new NotFoundException(ErrorMessage.venueNotFoundMessage(searchDto.getVenueId())));
+            searchDto.setLat(venue.getLocation().getLat());
+            searchDto.setLon(venue.getLocation().getLon());
+        }
         if (sortByViews) {
             searchDto.setSortInQuery(false);
             searchDto.setPageInQuery(false);

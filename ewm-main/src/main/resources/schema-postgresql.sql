@@ -14,6 +14,15 @@ CREATE TABLE IF NOT EXISTS users (
 	CONSTRAINT users_min_length_name CHECK (length(email) >= 2)
 );
 
+create table if not exists venues
+(
+    venue_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    lat REAL NOT NULL,
+    lon REAL NOT NULL,
+    name VARCHAR(120) NOT NULL,
+    CONSTRAINT venues_min_length_name CHECK (length(name) >= 3)
+);
+
 CREATE TABLE IF NOT EXISTS events
 (
     event_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -31,8 +40,10 @@ CREATE TABLE IF NOT EXISTS events
     request_moderation BOOLEAN NOT NULL,
     state VARCHAR(50) NOT NULL,
     title VARCHAR(120) NOT NULL,
-    CONSTRAINT events_category_fk FOREIGN KEY (category_id) REFERENCES categories(category_id) ON DELETE RESTRICT,
-    CONSTRAINT events_user_fk FOREIGN KEY (initiator_id) REFERENCES users(user_id) ON DELETE RESTRICT,
+    venue_id BIGINT,
+    CONSTRAINT events_category_fk FOREIGN KEY (category_id) REFERENCES categories (category_id) ON DELETE RESTRICT,
+    CONSTRAINT events_user_fk FOREIGN KEY (initiator_id) REFERENCES users (user_id) ON DELETE RESTRICT,
+    CONSTRAINT events_venue_fk FOREIGN KEY (venue_id) REFERENCES venues (venue_id) ON DELETE RESTRICT,
     CONSTRAINT events_min_length_annotation CHECK (length(annotation) >= 20),
     CONSTRAINT events_min_length_description CHECK (length(description) >= 20),
     CONSTRAINT events_min_length_title CHECK (length(title) >= 3)
@@ -72,8 +83,50 @@ create table if not exists compilations_events
     event_id BIGINT NOT NULL,
     CONSTRAINT comp_ev_compilation_id_fk foreign key (compilation_id) references compilations (compilation_id) ON DELETE CASCADE,
     CONSTRAINT comp_ev_event_id_fk foreign key (event_id) references events (event_id) ON DELETE CASCADE,
-    CONSTRAINT ccomp_ev_omp_event_unq UNIQUE (compilation_id,event_id)
+    CONSTRAINT comp_ev_omp_event_unq UNIQUE (compilation_id,event_id)
 );
 
 CREATE INDEX ON compilations_events (compilation_id);
 CREATE INDEX ON compilations_events (event_id);
+
+CREATE OR REPLACE FUNCTION distance(lat1 float, lon1 float, lat2 float, lon2 float)
+    RETURNS float
+AS
+'
+declare
+    dist float = 0;
+    rad_lat1 float;
+    rad_lat2 float;
+    theta float;
+    rad_theta float;
+BEGIN
+    IF lat1 = lat2 AND lon1 = lon2
+    THEN
+        RETURN dist;
+    ELSE
+        -- переводим градусы широты в радианы
+        rad_lat1 = pi() * lat1 / 180;
+        -- переводим градусы долготы в радианы
+        rad_lat2 = pi() * lat2 / 180;
+        -- находим разность долгот
+        theta = lon1 - lon2;
+        -- переводим градусы в радианы
+        rad_theta = pi() * theta / 180;
+        -- находим длину ортодромии
+        dist = sin(rad_lat1) * sin(rad_lat2) + cos(rad_lat1) * cos(rad_lat2) * cos(rad_theta);
+
+        IF dist > 1
+            THEN dist = 1;
+        END IF;
+
+        dist = acos(dist);
+        -- переводим радианы в градусы
+        dist = dist * 180 / pi();
+        -- переводим градусы в километры
+        dist = dist * 60 * 1.8524;
+
+        RETURN dist;
+    END IF;
+END;
+'
+LANGUAGE PLPGSQL;

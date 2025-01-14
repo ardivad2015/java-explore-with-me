@@ -33,6 +33,8 @@ public class AdminEventController {
                                       @RequestParam(value = "categories", required = false) List<Long> categoriesIds,
                                       @RequestParam(required = false) LocalDateTime rangeStart,
                                       @RequestParam(required = false) LocalDateTime rangeEnd,
+                                     @RequestParam(value = "venue", required = false) Long venueId,
+                                     @RequestParam(value = "radius", required = false) Float radius,
                                       @PositiveOrZero @RequestParam(defaultValue = "0") int from,
                                       @Positive @RequestParam(defaultValue = "10") int size) {
         final EventSearchDto eventSearchDto = EventSearchDto.builder()
@@ -42,6 +44,8 @@ public class AdminEventController {
                 .usePeriod(true)
                 .rangeStart(rangeStart)
                 .rangeEnd(rangeEnd)
+                .venueId(venueId)
+                .radius(radius)
                 .sortInQuery(true)
                 .pageable(true)
                 .pageInQuery(true)
