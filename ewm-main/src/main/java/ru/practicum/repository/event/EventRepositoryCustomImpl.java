@@ -2,6 +2,7 @@ package ru.practicum.repository.event;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPQLQuery;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import ru.practicum.dto.event.EventSearchDto;
@@ -25,6 +26,7 @@ public class EventRepositoryCustomImpl extends QuerydslRepositorySupport impleme
         return from(event)
                 .innerJoin(event.category, QCategory.category).fetchJoin()
                 .innerJoin(event.initiator, QUser.user).fetchJoin()
+                .leftJoin(event.venue, QVenue.venue).fetchJoin()
                 .where(event.id.eq(eventId))
                 .fetchOne();
     }
@@ -61,16 +63,27 @@ public class EventRepositoryCustomImpl extends QuerydslRepositorySupport impleme
 
         final String text = eventSearchDto.getText();
         if (Objects.nonNull(text) && !text.isBlank()) {
-           booleanBuilder.and(event.annotation.containsIgnoreCase(text).or(event.description.containsIgnoreCase(text)));
+            booleanBuilder.and(event.annotation.containsIgnoreCase(text).or(event.description.containsIgnoreCase(text)));
         }
 
         if (Objects.nonNull(eventSearchDto.getPaid())) {
-           booleanBuilder.and(event.paid.eq(eventSearchDto.getPaid()));
+            booleanBuilder.and(event.paid.eq(eventSearchDto.getPaid()));
+        }
+
+        final boolean searchByVenue = Objects.nonNull(eventSearchDto.getLat()) &&
+                Objects.nonNull(eventSearchDto.getLon()) && Objects.nonNull(eventSearchDto.getRadius());
+
+        if (searchByVenue) {
+            booleanBuilder.and((Expressions.booleanTemplate("distance({0}, {1}, {2}, {3}) <= {4}",
+                            event.location.lat, event.location.lon, eventSearchDto.getLat(), eventSearchDto.getLon(),
+                            eventSearchDto.getRadius()).and(event.venue.isNull()))
+                    .or(event.venue.id.eq(eventSearchDto.getVenueId())));
         }
 
         final JPQLQuery<Event> query = from(event)
                 .innerJoin(event.category, QCategory.category).fetchJoin()
                 .innerJoin(event.initiator, QUser.user).fetchJoin()
+                .leftJoin(event.venue, QVenue.venue).fetchJoin()
                 .where(booleanBuilder.getValue());
 
         if (eventSearchDto.isSortInQuery()) {

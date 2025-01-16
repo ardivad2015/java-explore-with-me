@@ -49,6 +49,9 @@ public class Event {
     private EventState state;
     @Column(name = "title")
     private String title;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "venue_id", referencedColumnName = "venue_id")
+    private Venue venue;
     @Transient
     private Long confirmedRequests;
     @Transient

@@ -25,4 +25,8 @@ public final class ErrorMessage {
     public static String compilationWithTitleExists(String title) {
         return String.format("Подборка с заголовком  %s уже существует", title);
     }
+
+    public static String venueNotFoundMessage(Long venueId) {
+        return String.format("Место проведения с id = %d не найдено", venueId);
+    }
 }

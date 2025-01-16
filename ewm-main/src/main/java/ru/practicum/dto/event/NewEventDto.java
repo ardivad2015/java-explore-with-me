@@ -37,5 +37,8 @@ public class NewEventDto {
     @NotBlank
     @Size(min = 3, max = 120)
     private String title;
+    @Positive
+    @JsonProperty("venue")
+    private Long venueId;
 }
 
