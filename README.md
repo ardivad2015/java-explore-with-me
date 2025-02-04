@@ -40,5 +40,5 @@ API основного сервиса разделен на три части. �
 - **Административный** (доступен только для администратора проекта)
   - API для работы со статистикой посещений
 ## Спецификация REST API swagger
-- [Основной сервис](https://raw.githubusercontent.com/KotTret/java-explore-with-me/main/ewm-main-service-spec.json)
-- [Сервис статистики](https://raw.githubusercontent.com/KotTret/java-explore-with-me/main/ewm-stats-service-spec.json)
+- [Основной сервис](https://github.com/ardivad2015/java-explore-with-me/blob/main/ewm-main-service-spec.json)
+- [Сервис статистики](https://github.com/ardivad2015/java-explore-with-me/blob/main/ewm-stats-service-spec.json)
